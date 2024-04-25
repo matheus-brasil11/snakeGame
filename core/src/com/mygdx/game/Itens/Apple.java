@@ -1,4 +1,4 @@
-package com.mygdx.game.Apple;
+package com.mygdx.game.Itens;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;

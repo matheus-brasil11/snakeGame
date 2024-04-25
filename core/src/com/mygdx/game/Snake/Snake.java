@@ -8,11 +8,14 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.ArrayList;
+
 public class Snake {
     private Circle caixaJogador;
     private Vector2 posicao;
     private Texture texture;
     private float velocidade;
+    private ArrayList<Vector2> segmentos = new ArrayList<>();
     private boolean y_up = false;
     private boolean y_down = false;
     private boolean x_up = false;
@@ -23,6 +26,36 @@ public class Snake {
         this.caixaJogador = new Circle();
         this.posicao = new Vector2(x, y); // Inicializa a posição da cobra
         this.velocidade = 3f;
+    }
+
+    public void crescer() {
+        if (segmentos.size() > 0) {
+            segmentos.add(new Vector2(segmentos.get(segmentos.size() - 1)));
+        } else {
+            segmentos.add(new Vector2(posicao));
+        }
+    }
+
+    public void atualizarTamanhoCobra() {
+        if (segmentos.size() > 0) {
+            for (int i = segmentos.size() - 1; i > 0; i--) {
+                segmentos.get(i).set(segmentos.get(i - 1));
+            }
+            segmentos.get(0).set(posicao);
+        }
+    }
+
+    public void resetarCobra() {
+        segmentos.clear();
+    }
+
+    public boolean checarColisao() {
+        for (int i = 1; i < segmentos.size(); i++) {
+            if (posicao.equals(segmentos.get(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void imobilizaCobra(){
@@ -73,8 +106,12 @@ public class Snake {
         caixaJogador.setPosition(posicao);
     }
 
-    public void render(SpriteBatch batch ){
-        batch.draw(texture, posicao.x,  posicao.y );
+    public void render(SpriteBatch batch) {
+        batch.draw(texture, posicao.x, posicao.y);
+
+        for (Vector2 segmentos : segmentos) {
+            batch.draw(texture, segmentos.x, segmentos.y);
+        }
     }
 
     public void dispose(){

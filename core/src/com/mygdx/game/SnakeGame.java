@@ -12,7 +12,6 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.Itens.Apple;
-import com.mygdx.game.Itens.Ice;
 import com.mygdx.game.Snake.Snake;
 
 public class SnakeGame extends ApplicationAdapter {
@@ -21,14 +20,11 @@ public class SnakeGame extends ApplicationAdapter {
 	private BitmapFont mensagem;
 	private Snake snake;
 	private Apple apple;
-	private Ice ice;
 	private Texture snakeImage;
 	private Texture appleImage;
-	private Texture iceImage;
 	private Texture fundo;
 	private float deltaTime;
 	private int pontuacao;
-	private int qtdMaca = 0;
 	private int estadoJogo;
 	private OrthographicCamera camera;
 	private Viewport viewport;
@@ -63,12 +59,10 @@ public class SnakeGame extends ApplicationAdapter {
 
 		snakeImage = new Texture("HeadSnake.png");
 		appleImage = new Texture("apple.png");
-		iceImage = new Texture("ice.png");
 		fundo = new Texture("background.jpg");
 
 		snake = new Snake(snakeImage, posicaoInicialHorizontal, posicaoInicialVertical );
 		apple = new Apple(appleImage, larguraDispositivo, larguraDispositivo);
-		ice = new Ice(iceImage, larguraDispositivo, larguraDispositivo);
 
 	}
 	@Override
@@ -115,9 +109,6 @@ public class SnakeGame extends ApplicationAdapter {
 		apple.render(batch);
 
 
-
-
-
 		if ( ( snake.getPosicaoY() <= 0 || snake.getPosicaoY() >= alturaDispositivo ) || (snake.getPosicaoX() <= 0 || snake.getPosicaoX() >= larguraDispositivo) ||  snake.checarColisao()) {
 
 			estadoJogo = 2;
@@ -126,7 +117,6 @@ public class SnakeGame extends ApplicationAdapter {
 		if (Intersector.overlaps(snake.getCaixaJogador(), apple.getCircle())) {
 
 			snake.crescer();
-			qtdMaca++;
 
 			if (snake.getVelocidade() <= 5) {
 				pontuacao += 10;
@@ -140,19 +130,6 @@ public class SnakeGame extends ApplicationAdapter {
 
 			apple.criar(larguraDispositivo, alturaDispositivo);
 
-		}
-
-		if (qtdMaca % 5 == 0 && qtdMaca != 0) {
-			ice.render(batch);
-		}
-
-
-		if (Intersector.overlaps(snake.getCaixaJogador() , ice.getCircle())) {
-
-			float velocidadeAtual = snake.getVelocidade() - 1;
-
-			snake.setVelocidade(velocidadeAtual);
-			ice.dispose();
 		}
 
 		if(estadoJogo == 2){
@@ -176,7 +153,6 @@ public class SnakeGame extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 		snake.dispose();
-		ice.dispose();
 		mensagem.dispose();
 	}
 }
