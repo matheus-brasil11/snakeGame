@@ -2,23 +2,18 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.game.Apple.Apple;
+import com.mygdx.game.Itens.Apple;
+import com.mygdx.game.Itens.Ice;
 import com.mygdx.game.Snake.Snake;
-
-import java.util.ArrayList;
 
 public class SnakeGame extends ApplicationAdapter {
 	SpriteBatch batch;
@@ -26,11 +21,14 @@ public class SnakeGame extends ApplicationAdapter {
 	private BitmapFont mensagem;
 	private Snake snake;
 	private Apple apple;
+	private Ice ice;
 	private Texture snakeImage;
 	private Texture appleImage;
+	private Texture iceImage;
 	private Texture fundo;
 	private float deltaTime;
 	private int pontuacao;
+	private int qtdMaca = 0;
 	private int estadoJogo;
 	private OrthographicCamera camera;
 	private Viewport viewport;
@@ -65,17 +63,14 @@ public class SnakeGame extends ApplicationAdapter {
 
 		snakeImage = new Texture("HeadSnake.png");
 		appleImage = new Texture("apple.png");
+		iceImage = new Texture("ice.png");
 		fundo = new Texture("background.jpg");
 
 		snake = new Snake(snakeImage, posicaoInicialHorizontal, posicaoInicialVertical );
 		apple = new Apple(appleImage, larguraDispositivo, larguraDispositivo);
+		ice = new Ice(iceImage, larguraDispositivo, larguraDispositivo);
 
 	}
-
-	private void snakeUpdate() {
-		snake.listenKey();
-	}
-
 	@Override
 	public void render () {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -93,7 +88,9 @@ public class SnakeGame extends ApplicationAdapter {
 		} else {
 
 			if (estadoJogo == 1) {
-				snakeUpdate();
+				snake.atualizarTamanhoCobra();
+				snake.listenKey();
+
 
 			} else {
 
@@ -103,6 +100,7 @@ public class SnakeGame extends ApplicationAdapter {
 					snake.setPosicaoY(posicaoInicialVertical);
 					snake.setPosicaoX(posicaoInicialHorizontal);
 					snake.setVelocidade(3f);
+					snake.resetarCobra();
 					pontuacao = 0;
 				}
 			}
@@ -114,16 +112,21 @@ public class SnakeGame extends ApplicationAdapter {
 		batch.draw(fundo, 0,0, larguraDispositivo, alturaDispositivo);
 		fonte.draw(batch, String.valueOf(pontuacao), larguraDispositivo/2, alturaDispositivo-50);
 		snake.render(batch);
-		for (Rectangle segmento : snake.getSegmentos()) {
-			batch.draw(snakeImage, segmento.getX(), segmento.getY());
-		}
 		apple.render(batch);
 
-		if ( ( snake.getPosicaoY() <= 0 || snake.getPosicaoY() >= alturaDispositivo ) || (snake.getPosicaoX() <= 0 || snake.getPosicaoX() >= larguraDispositivo) ) {
+
+
+
+
+		if ( ( snake.getPosicaoY() <= 0 || snake.getPosicaoY() >= alturaDispositivo ) || (snake.getPosicaoX() <= 0 || snake.getPosicaoX() >= larguraDispositivo) ||  snake.checarColisao()) {
+
 			estadoJogo = 2;
 		}
 
 		if (Intersector.overlaps(snake.getCaixaJogador(), apple.getCircle())) {
+
+			snake.crescer();
+			qtdMaca++;
 
 			if (snake.getVelocidade() <= 5) {
 				pontuacao += 10;
@@ -133,11 +136,23 @@ public class SnakeGame extends ApplicationAdapter {
 				pontuacao += 20;
 			}
 
-			snake.setVelocidade( snake.getVelocidade() + 1f);
-
+			snake.setVelocidade( snake.getVelocidade() + 0.2f);
 
 			apple.criar(larguraDispositivo, alturaDispositivo);
-			snake.setComeuApple(true);
+
+		}
+
+		if (qtdMaca % 5 == 0 && qtdMaca != 0) {
+			ice.render(batch);
+		}
+
+
+		if (Intersector.overlaps(snake.getCaixaJogador() , ice.getCircle())) {
+
+			float velocidadeAtual = snake.getVelocidade() - 1;
+
+			snake.setVelocidade(velocidadeAtual);
+			ice.dispose();
 		}
 
 		if(estadoJogo == 2){
@@ -161,6 +176,7 @@ public class SnakeGame extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 		snake.dispose();
+		ice.dispose();
 		mensagem.dispose();
 	}
 }
